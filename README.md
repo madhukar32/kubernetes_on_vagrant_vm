@@ -9,12 +9,11 @@ Bringing up a kubernetes cluster on vagrant VM
 
 Use below command to install packages needed by the infra
 
-	```bash
+```bash
 	./scripts/install_infra.sh
-	```
+```
 
 ### Bringing up the vagrant VM
 
 1. Refer [readme for vagrantfile](src/README.md), make changes according to it
 2. Use `vagrant up` to bring up your environment
-
