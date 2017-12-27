@@ -27,7 +27,7 @@ sudo DEBIAN_FRONTEND=noninteractive apt-get --assume-yes install \
     ca-certificates \
     curl \
     vim \
-    build-essentials \
+    build-essential \
     dkms \
     software-properties-common
 
