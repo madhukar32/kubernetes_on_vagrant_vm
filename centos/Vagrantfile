@@ -1,0 +1,59 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+VAGRANTFILE_API_VERSION = "2"
+
+public_ip_list = [ "10.87.65.252"]
+private_ip_list = ["10.10.65.252"]
+
+Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+
+    (1..1).each do |id|
+        host_name  = ( "centos-contrail-" + id.to_s ).to_sym
+        # ##############################
+        # ## Packet Forwarding Engine ##
+        # ##############################
+        config.vm.define host_name do |host|
+            host.vm.box = "centos/7"
+            #host.vm.hostname = host_name
+
+            # DO NOT REMOVE / NO VMtools installed
+            host.vm.synced_folder '.', '/vagrant'
+            host.vm.network "public_network", ip: "#{public_ip_list[id-0]}", bridge: "em1" 
+
+            host.vm.network "private_network", ip: "#{private_ip_list[id-0]}",
+              virtualbox__intnet: true,
+              nic_type: "virtio"
+
+
+            # In case you have limited resources, you can limit the CPU used per vqfx-pfe VM, usually 50% is good
+            # host.vm.provider "virtualbox" do |v|
+            #    v.customize ["modifyvm", :id, "--cpuexecutioncap", "50"]
+            # end
+            host.vm.provider "virtualbox" do |v|
+               v.memory = 32000
+               v.cpus = 8
+            end
+
+            host.vm.provision "shell",
+               run: "always",
+               inline: "ip route add default via 10.87.65.254"
+          #  host.vm.provision "shell",
+           #    run: "always",
+            #   inline: "eval `route -n | awk '{ if ($8 ==\"enp0s3\" && $2 != \"0.0.0.0\") print \"ip route del default gw \" $2; }'`"
+            host.vm.provision "shell",
+               path: "scripts/install_kubernetes_on_centos.sh"
+            #host.vm.provision "shell",
+            #   path: "scripts/enable_insecure_registry.sh"
+            host.vm.provision "shell",
+               path: "scripts/hosts.sh"
+            host.vm.provision "shell",
+               path: "scripts/resolv.sh"
+            host.vm.provision "shell",
+               path: "scripts/ntp.sh"
+            host.vm.provision "shell",
+               path: "scripts/enable_root_login.sh"
+            host.vm.provision "shell",
+               path: "scripts/enable_firewall_ports.sh"
+        end
+    end
+end

@@ -1,0 +1,55 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  labels:
+    job-name: nova-cell-setup
+  name: nova-cell-setup
+  namespace: openstack
+spec:
+  completions: 1
+  parallelism: 1
+  template:
+    metadata:
+      annotations:
+      creationTimestamp: null
+      labels:
+        job-name: nova-cell-setup
+    spec:
+      containers:
+      - command: ["bash"]
+        args: ["-c", "while true; do echo hello; sleep 10;done"]
+        image: docker.io/kolla/ubuntu-source-nova-api:4.0.0
+        imagePullPolicy: IfNotPresent
+        name: nova-cell-setup
+        resources: {}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /tmp/db-sync.sh
+          name: nova-bin
+          readOnly: true
+          subPath: db-sync.sh
+        - mountPath: /etc/nova
+          name: etcnova
+        - mountPath: /etc/nova/nova.conf
+          name: nova-etc
+          readOnly: true
+          subPath: nova.conf
+      dnsPolicy: ClusterFirst
+      nodeSelector:
+        openstack-control-plane: enabled
+      restartPolicy: OnFailure
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - emptyDir: {}
+        name: etcnova
+      - configMap:
+          defaultMode: 420
+          name: nova-etc
+        name: nova-etc
+      - configMap:
+          defaultMode: 365
+          name: nova-bin
+        name: nova-bin
