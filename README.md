@@ -9,7 +9,14 @@ Bringing up a kubernetes cluster on vagrant VM
 
 Use below command to install packages needed by the infra
 
+
+Check below links for available vagrant versions
+
+[Vagrant releases](https://github.com/hashicorp/vagrant/releases)
+
+
 ```bash
+  export VAGRANT_VERSION='2.1.0'
 	./scripts/install_infra.sh
 ```
 
